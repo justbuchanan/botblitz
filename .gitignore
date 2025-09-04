@@ -44,3 +44,6 @@ sheets-creds.json
 
 gamestate.db
 dist/*
+
+# python virtual environment
+.venv

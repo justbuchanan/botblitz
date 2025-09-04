@@ -24,7 +24,8 @@ test:
 	go list -f '{{.Dir}}' -m | xargs -L1 go test -C
 
 run-draft:
-	go run pkg/cmd/engine_bootstrap.go -game_mode=Draft
+	rm data/game_states/2025/gs-draft.db || true
+	go run pkg/cmd/engine_bootstrap.go -game_mode=Draft -enable_google_sheets=false -enable_verbose_logging=true
 
 run-weekly-fantasy:
 	go run pkg/cmd/engine_bootstrap.go -game_mode=PerformWeeklyFantasyActions
@@ -55,7 +56,6 @@ debug-docker:
 
 launch-simulator:
 	pip3 install -r requirements.txt
-	$(MAKE) gen-python-only
 	$(MAKE) build-py-module
 	pip3 install dist/blitz_env-0.1.0-py3-none-any.whl
 	datasette gamestate.db --host 127.0.0.1 --port 8001 &
