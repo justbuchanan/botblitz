@@ -184,20 +184,92 @@ def draft_player() -> str:
         return ""  # Return empty string if no undrafted players are available
 
 
+def get_current_fantasy_week(db):
+    df = pd.read_sql("SELECT * FROM game_statuses", db.engine)
+    return df.iloc[0]["current_fantasy_week"]
 
-# TODO
+def get_current_bot_id(db):
+    df = pd.read_sql("SELECT * FROM game_statuses", db.engine)
+    return df.iloc[0]["current_bot_id"]
+
+def get_my_remaining_budget(db, current_bot_id):
+    queryStr = f"SELECT * FROM bots where id = '{current_bot_id}'"
+    df = pd.read_sql(queryStr, db.engine) 
+    return df.iloc[0]["remaining_waiver_budget"]
+
+def get_current_opponent_id(db, current_bot_id, week):
+    queryStr = f"SELECT * FROM matchups where week = {week} AND (home_bot_id = '{current_bot_id}' OR visitor_bot_id = '{current_bot_id}')"
+    df = pd.read_sql(queryStr, db.engine)
+    matchup = df.iloc[0]
+
+    if matchup["home_bot_id"] == current_bot_id:
+        return matchup["visitor_bot_id"]
+    elif matchup["visitor_bot_id"] == current_bot_id:
+        return matchup["home_bot_id"]
+    else:
+        return "Unknown"
+
+def get_season_stats_for_available_players(db):
+    queryStr = """
+        SELECT *
+        FROM players AS p
+        INNER JOIN weekly_stats AS w
+            ON p.id = w.fantasypros_id
+        WHERE p.current_bot_id IS NULL
+        ORDER BY FPTS desc
+    """
+    return pd.read_sql(queryStr, db.engine)
+
+
 def perform_weekly_fantasy_actions() -> AttemptedFantasyActions:
-    claims = [ 
-        WaiverClaim(
-            player_to_add_id="",
-            player_to_drop_id="",
-            bid_amount=0
+    try:
+        db = DatabaseManager()
+        current_fantasy_week = get_current_fantasy_week(db)
+        current_bot_id = get_current_bot_id(db)
+        current_budget = get_my_remaining_budget(db, current_bot_id)
+        # current_opponent = get_current_opponent_id(db, current_bot_id, current_fantasy_week)
+        data_on_available_players = get_season_stats_for_available_players(db)
+
+        uint32max = 4294967295
+        return AttemptedFantasyActions(
+            waiver_claims=[
+                WaiverClaim(
+                    player_to_add_id="",
+                    player_to_drop_id="",
+                    bid_amount=uint32max,
+                ),
+                WaiverClaim(
+                    player_to_add_id="",
+                    player_to_drop_id="",
+                    bid_amount=uint32max,
+                )
+            ]
         )
-    ]
 
-    actions = AttemptedFantasyActions(
-        waiver_claims=claims
-    )
+        my_team = get_my_team(db)
 
-    return actions
+        # for index, row in data_on_available_players.iterrows():
+        #     print(index, row["week"], row["full_name"], row["allowed_positions"], row["FPTS"])
 
+        # TODO:
+        uint32max = 4294967295
+        return AttemptedFantasyActions(
+            waiver_claims=[
+                WaiverClaim(
+                    player_to_add_id="",
+                    player_to_drop_id=my_team[0].id,
+                    bid_amount=uint32max,
+                ),
+                WaiverClaim(
+                    player_to_add_id="",
+                    player_to_drop_id=my_team[1].id,
+                    bid_amount=uint32max,
+                )
+            ]
+        )
+
+
+    except Exception as e:
+        print("Justin bot failed: ", e) # TODO
+    finally:
+        db.close()

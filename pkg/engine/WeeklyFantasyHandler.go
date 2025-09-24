@@ -433,6 +433,9 @@ func (e *BotEngine) fetchAddDropSubmissions(ctx context.Context, bots []gamestat
 	for _, bot := range bots {
 		// TODO: in the future this may need to change to handle trades, etc. as well
 
+		fmt.Println("")
+		fmt.Printf("Calling bot: %q\n", bot.Name)
+
 		// Need to update current_bot_id so bots know who they are
 		err := e.gameStateHandler.SetCurrentBotTeamId(bot.ID)
 		if err != nil {

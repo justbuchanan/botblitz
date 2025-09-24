@@ -22,6 +22,9 @@
             python3Packages.pip
             python3Packages.virtualenv
             gcc
+            protobuf
+            protoc-gen-go
+            protoc-gen-go-grpc
           ];
           shellHook = ''
             export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib.outPath}/lib:${pkgs.pythonManylinuxPackages.manylinux2014Package}/lib:$LD_LIBRARY_PATH";

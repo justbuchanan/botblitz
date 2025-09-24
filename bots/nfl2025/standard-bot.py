@@ -156,6 +156,8 @@ def perform_weekly_fantasy_actions() -> AttemptedFantasyActions:
         )
 
         return actions
+    except Exception as e:
+        print("justin bot failed with exception: ", e)
     finally:
         db.close()
 

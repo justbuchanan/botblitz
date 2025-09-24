@@ -260,6 +260,7 @@ func (e *BotEngine) createAndStartContainer(env []string, port int) (string, err
 	if err != nil {
 		return "", fmt.Errorf("unable to create container: %v", err)
 	}
+	fmt.Printf("Created container with id: %q\n", createResponse.ID)
 
 	err = apiClient.ContainerStart(context.Background(), createResponse.ID, container.StartOptions{})
 	if err != nil {

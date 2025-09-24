@@ -28,7 +28,7 @@ run-draft:
 	go run pkg/cmd/engine_bootstrap.go -game_mode=Draft -enable_google_sheets=false -enable_verbose_logging=true
 
 run-weekly-fantasy:
-	go run pkg/cmd/engine_bootstrap.go -game_mode=PerformWeeklyFantasyActions
+	go run pkg/cmd/engine_bootstrap.go -game_mode=PerformWeeklyFantasyActions -enable_verbose_logging=true -enable_google_sheets=false
 
 run-weekly-fantasy-github:
 	go run pkg/cmd/engine_bootstrap.go -game_mode=PerformWeeklyFantasyActions -is_running_on_github=true
